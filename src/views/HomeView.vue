@@ -1,4 +1,5 @@
 <script setup>
+import { supabase } from '../clients/supabase';
 
 </script>
 

@@ -5,4 +5,6 @@
 
 <script setup>
 import { RouterLink } from "vue-router";
+import { supabase } from '../clients/supabase';
+
 </script>

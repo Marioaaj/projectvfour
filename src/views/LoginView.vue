@@ -1,5 +1,5 @@
 <template>
-	<h1> Test Form </h1>
+	<h1> Login </h1>
 	<div class="inputContainer">
 		<label for="email"> Email: </label>
 		<input type="email" id="email" v-model="email">
@@ -12,10 +12,10 @@
 
 
 	<div class="buttonContainer">
-		<button @click="createAccount"> Create </button>
-		<button @click="login"> Login </button>
-		<button @click="seeUser"> See user </button>
-		<button @click="logout"> Logout </button>
+		<button class="rounded-button" @click="createAccount"> Create </button>
+		<button class="rounded-button" @click="login"> Login </button>
+		<button class="rounded-button" @click="seeUser"> See user </button>
+		<button class="rounded-button" @click="logout"> Logout </button>
 	</div>
 </template>
 
@@ -80,23 +80,32 @@ async function logout() {
 }
 </script>
 
-<style scoped>
-.inputContainer {
-	display: flex;
-	flex-direction: column;
-}
+<style>
+ body {
+    background-image: url('echo.png'); /* Replace with your image path */
+    background-size: cover; /* Cover the entire viewport */
+    background-position: center; /* Center the image */
+    background-repeat: no-repeat; /* Do not repeat the image */
+    margin: 0; /* Remove default margin */
+    height: 100vh; /* Full viewport height */
+  }
+  .rounded-button {
+    background-color: #118AB2; /* Button fill color */
+    color: #FFD166;            /* Text color */
+    border: none;
+    border-radius: 15px;       /* Adjust this value to control the roundness */
+    padding: 10px 20px;
+    text-align: center;
+    text-decoration: none;
+    display: inline-block;
+    font-size: 25px;
+    margin: 4px 2px;
+    transition-duration: 0.4s;
+    cursor: pointer;
+  }
 
-input {
-	font-size: 1.5em;
-}
-.buttonContainer {
-	display: flex;
-	flex-direction: column;
-	margin-top: 1em;
-}
-
-button {
-	margin-bottom: 1em;
-	padding: 1em 2em 1em 2em;
-}
+  .rounded-button:hover {
+    background-color: #EF476F; /* Color changes when hovered */
+    color: #FFD166;
+  }
 </style>

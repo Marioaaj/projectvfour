@@ -1,5 +1,6 @@
 <script setup>
 import { RouterLink, RouterView } from 'vue-router'
+
 </script>
 
 <template>
@@ -40,5 +41,12 @@ nav a {
 	margin-right: auto;
 	border-radius: 1em;
 	padding: 2em 0 2em 0;
+	background-color: #d9d9d9;
+	
+}
+.text-layer {
+    position: relative;
+    z-index: 2;
+    /* Additional styling as needed */
 }
 </style>
