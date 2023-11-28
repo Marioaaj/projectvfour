@@ -1,5 +1,5 @@
 <template>
-	<h1> Unauthorized </h1>
+	<h1> Travlers only </h1>
 	<RouterLink to="/login">Login</RouterLink>
 </template>
 

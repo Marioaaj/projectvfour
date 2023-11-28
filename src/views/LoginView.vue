@@ -12,10 +12,9 @@
 
 
 	<div class="buttonContainer">
-		<button class="rounded-button" @click="createAccount"> Create </button>
 		<button class="rounded-button" @click="login"> Login </button>
-		<button class="rounded-button" @click="seeUser"> See user </button>
 		<button class="rounded-button" @click="logout"> Logout </button>
+		<button class="rounded-button" @click="createAccount"> Register </button>
 	</div>
 </template>
 
@@ -47,25 +46,26 @@ async function createAccount() {
 	}
 }
 
+let session = ref(null);
+
 async function login() {
-	console.log("run")
-	const { data, error } = await supabase.auth.signInWithPassword({
-		email: email.value,
-		password: password.value
-	})
-	if (error)
-	{
-		console.log(error);
-	}
-	else
-	{
-		console.log(data);
-	}
+  console.log("run");
+  const { data, error } = await supabase.auth.signInWithPassword({
+    email: email.value,
+    password: password.value
+  });
+
+  if (error) {
+    console.log(error);
+  } else {
+    console.log(data);
+    session.value = data; // Store the session data
+  }
 }
 
 async function seeUser() {
 	const localUser = await supabase.auth.getSession();
-	console.log(localUser.data.session)
+	console.log(localUser.data.session) //, had to add this to troubleshoot, because couldnt upload stuff may delete later
 }
 
 async function logout() {
@@ -82,7 +82,7 @@ async function logout() {
 
 <style>
  body {
-    background-image: url('echo.png'); /* Replace with your image path */
+    background-image: url('../echo.png'); /* Replace with your image path */
     background-size: cover; /* Cover the entire viewport */
     background-position: center; /* Center the image */
     background-repeat: no-repeat; /* Do not repeat the image */
@@ -92,20 +92,34 @@ async function logout() {
   .rounded-button {
     background-color: #118AB2; /* Button fill color */
     color: #FFD166;            /* Text color */
-    border: none;
+    border: salmon;
     border-radius: 15px;       /* Adjust this value to control the roundness */
     padding: 10px 20px;
     text-align: center;
     text-decoration: none;
     display: inline-block;
     font-size: 25px;
+	font-weight: bold;
     margin: 4px 2px;
     transition-duration: 0.4s;
     cursor: pointer;
+	display: flex;
+  	flex-direction: column; /* Stack children elements vertically */
+ 	align-items: center;   /* Center-align the buttons */
+	width: 150px;
+	height: auto;
+    line-height: normal; 
+	margin-bottom: 12px;
+	box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.4); /* Add shadow to the button */     
+
   }
 
   .rounded-button:hover {
     background-color: #EF476F; /* Color changes when hovered */
     color: #FFD166;
+	box-shadow: 0 8px 16px 0 rgba(0, 0, 0, 0.9); /* Increase shadow on hover */
   }
+  .rounded-button:last-child {
+    margin-bottom: -5px; /* Remove the margin from the last button */
+}
 </style>
