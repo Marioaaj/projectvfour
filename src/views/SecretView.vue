@@ -51,7 +51,7 @@ const addTask = async () => {
   // Define userId within the function scope
   const userId = account.value?.data?.session?.user?.id;
   if (!userId) {
-    console.log('User is not logged in');
+    console.log('User is not logged in for addTask');
     return;
   }
 
@@ -141,7 +141,7 @@ const loadTasks = async () => {
       console.error('An error occurred while fetching tasks:', e);
     }
   } else {
-    console.log('User is not logged in');
+    console.log('User is not logged in for taskData');
   }
 };
 const deleteTask = async (taskId) => {
