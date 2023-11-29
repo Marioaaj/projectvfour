@@ -6,7 +6,15 @@ import { onMounted } from 'vue';
 import { nanoid } from 'nanoid';
 
 
+
+
 const baseURL = 'https://oerpddeqepyvfzuecggs.supabase.co/storage/v1/object/public/echoimages/';
+
+const manualDataLoad = async () => {
+  console.log('Manual data load triggered');
+  await loadTasks();
+};
+
 
 const fullImageUrl = (imagePath) => {
   return baseURL + imagePath;
@@ -16,9 +24,13 @@ const account = ref();
 getSession();
 
 async function getSession() {
-	account.value = await supabase.auth.getSession();
-	console.log(account.value)
-	console.log('Account session data:', account.value);
+  try {
+    const sessionData = await supabase.auth.getSession();
+    console.log('Session data retrieved:', sessionData);
+    account.value = sessionData;
+  } catch (error) {
+    console.error('Error retrieving session:', error);
+  }
 }
 
 const handleLogout = async () => {
@@ -100,50 +112,64 @@ const tasks = ref([]);
 const loadTasks = async () => {
   const userId = account.value?.data?.session?.user?.id;
   console.log('Loading tasks for user ID:', userId);
+  
 
-  if (userId) {
-    try {
-      let { data: tasksData, error } = await supabase
-        .from('tasks')
-        .select('*')
-        .eq('user_id', userId);
+  if (!userId) {
+    console.log('User is not logged in or userId is not available');
+    return;
+  }
 
-      if (error) {
-        console.error('Error fetching tasks:', error);
-        return;
-      }
+  try {
+    let { data: tasksData, error } = await supabase
+      .from('tasks')
+      .select('*')
+      .eq('user_id', userId);
+	  
+
+    if (error) {
+      console.error('Error fetching tasks:', error);
+      return;
+    }
+
+    console.log('Tasks fetched from database:', tasksData);
 
       // Generate public URLs for images
       tasksData = await Promise.all(tasksData.map(async (task) => {
-        if (task.image_url) {
-          const imagePath = task.image_url.replace('echoimages/', ''); // Adjust path
-          console.log('Image path for getPublicUrl:', imagePath); // Log the imagePath
+      if (task.image_url) {
+        const imagePath = task.image_url.split('/').pop();
+        console.log('Generating public URL for image:', imagePath);
 
-          const { publicURL, error: urlError } = supabase.storage
-            .from('echoimages')
-            .getPublicUrl(imagePath);
+        const { publicURL, error: urlError } = supabase.storage
+          .from('echoimages')
+          .getPublicUrl(imagePath);
 
-          console.log('Public URL:', publicURL, 'Error:', urlError); // Log the publicURL and any error
-
-          if (urlError) {
-            console.error('Error getting public URL:', urlError);
-            return task;
-          }
-
-          return { ...task, publicImageUrl: publicURL };
+        if (urlError) {
+          console.error('Error getting public URL:', urlError);
+          return task;
         }
-        return task;
-      }));
 
-      console.log('Fetched tasks with public URLs:', tasksData); // Log the final tasks data
-      tasks.value = tasksData;
-    } catch (e) {
-      console.error('An error occurred while fetching tasks:', e);
-    }
-  } else {
-    console.log('User is not logged in for taskData');
+        console.log('Public URL for image:', publicURL);
+        return { ...task, publicImageUrl: publicURL };
+      }
+      return task;
+    }));
+
+    console.log('Tasks with public URLs:', tasksData);
+    tasks.value = tasksData;
+  } catch (e) {
+    console.error('An error occurred while fetching tasks:', e);
   }
 };
+
+const fetchFromSupabase = async (url, options) => {
+  console.log('Sending request to Supabase:', url, options);
+  const response = await fetch(url, options);
+  console.log('Response from Supabase:', response);
+  return response.json();
+};
+
+
+//This is Delete task function without this I cant delete stuff
 const deleteTask = async (taskId) => {
   try {
     const { error } = await supabase
@@ -154,6 +180,7 @@ const deleteTask = async (taskId) => {
     if (error) {
       console.error('Error deleting task:', error);
     } else {
+      console.log('Task deleted successfully:', taskId);
       // Refresh the tasks list
       await loadTasks();
     }
@@ -182,6 +209,7 @@ onMounted(async () => {
 		<h1>Odyssey Book</h1>
 		<p id="account">Account: {{ account.data.session.user.email }}</p>
 		<h2>📝 Log an Odyssey 📝</h2>
+		<button @click="manualDataLoad" class="load-data-button">Load Sample Data</button>
 	  </div>
 	  <div class="task-form-container">
 		<label for="file-input" class="file-input-label">
@@ -292,4 +320,7 @@ onMounted(async () => {
 	cursor: pointer;
 	margin-left: auto; /* Align the delete icon to the right */
   }
+  .load-data-button {
+	margin-bottom: 10px; /* Example style */
+}
   </style>
