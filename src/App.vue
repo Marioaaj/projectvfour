@@ -9,8 +9,8 @@ import { RouterLink, RouterView } from 'vue-router'
 
     <div class="wrapper">
       <nav>
-        <RouterLink to="/">Hello There</RouterLink>
-        <RouterLink to="/secret">Secret</RouterLink>
+        <RouterLink to="/">Home</RouterLink>
+        <RouterLink to="/secret">Diary</RouterLink>
 		<RouterLink to="/login">Login</RouterLink>
       </nav>
     </div>
@@ -35,15 +35,26 @@ nav {
 nav a {
   padding: 1em;
   text-decoration: none; /* Remove underline from links */
-  color: white; /* White text color for contrast */
-  transition: background-color 0.3s; /* Smooth background color change on hover */
-}
+  color: white;
+  transition: background-color 0.3s; 
+ }
 
-nav a:hover {
-  background-color: rgba(255, 255, 255, 0.3); /* Light background on hover for feedback */
+ nav a:hover {
+  background-color: rgba(255, 255, 255, 0.3); 
 }
 
 .content {
+  display: flex;
+  align-items: center;
+  flex-direction: column;
+  width: 900px;
+  margin-left: auto;
+  margin-right: auto;
+  border-radius: 1em;
+  padding: 2em 0 2em 0;
+}
+
+.mainBorder {
   display: flex;
   align-items: center;
   flex-direction: column;
@@ -53,9 +64,7 @@ nav a:hover {
   margin-right: auto;
   border-radius: 1em;
   padding: 2em 0 2em 0;
-  background-color: #d9d9d9;
 }
-
 .text-layer {
   position: relative;
   z-index: 2;

@@ -4,12 +4,21 @@ import { ref } from "vue";
 import { logout } from "@/utils/logout";
 import { onMounted } from 'vue';
 import { nanoid } from 'nanoid';
-
-
-
+import { useRouter } from 'vue-router';
 
 const baseURL = 'https://oerpddeqepyvfzuecggs.supabase.co/storage/v1/object/public/echoimages/';
 
+//This is for the edit button on a task or the pencil and notepad it should redirect you and pass the parameters
+const router = useRouter();
+
+
+
+const editTask = (task) => {
+  router.push({ name: 'editTask', params: { taskId: task.id } });
+};
+
+
+//This is for the memories button which triggers load task
 const manualDataLoad = async () => {
   console.log('Manual data load triggered');
   await loadTasks();
@@ -21,6 +30,12 @@ const fullImageUrl = (imagePath) => {
 };
 
 const account = ref();
+
+const fileInput = ref(null);
+
+
+
+
 getSession();
 
 async function getSession() {
@@ -161,12 +176,9 @@ const loadTasks = async () => {
   }
 };
 
-const fetchFromSupabase = async (url, options) => {
-  console.log('Sending request to Supabase:', url, options);
-  const response = await fetch(url, options);
-  console.log('Response from Supabase:', response);
-  return response.json();
-};
+//function to edit task bubbles
+
+
 
 
 //This is Delete task function without this I cant delete stuff
@@ -203,13 +215,19 @@ onMounted(async () => {
 </script>
 
 
+
+
+
+
+
+
 <template>
-	<div class="about">
+	<div class="ok">
 	  <div class="header">
-		<h1>Odyssey Book</h1>
+		<h1>📝 Log an Odyssey 📝</h1>
 		<p id="account">Account: {{ account.data.session.user.email }}</p>
-		<h2>📝 Log an Odyssey 📝</h2>
-		<button @click="manualDataLoad" class="load-data-button">Load Sample Data</button>
+		<button @click="handleLogout">Sign Out</button>
+		<button @click="manualDataLoad" class="load-data-button">Reveal Memories</button>
 	  </div>
 	  <div class="task-form-container">
 		<label for="file-input" class="file-input-label">
@@ -240,16 +258,52 @@ onMounted(async () => {
 		  </div>
 		  <div class="text-container">
 			{{ task.name }}
-			<img src="../icons8-trash-24.svg" @click="deleteTask(task.id)" class="delete-icon" alt="Delete" />
+		  </div>
+		  <div class="button-container">
+			<img src="../edit.svg" @click="() => editTask(task)" class="edit-icon" alt="Edit" />
+			<img src="../trash.svg" @click="deleteTask(task.id)" class="delete-icon" alt="Delete" />
 		  </div>
 		</li>
 	  </ul>
 	</div>
   </template>
   
+
+
+
+
+
+
+
+
   <style>
+  .button-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.edit-icon, .delete-icon {
+  cursor: pointer;
+  margin: 5px; /* Adjust spacing as needed */
+}
+  .edit-input {
+    margin-right: 10px;
+    /* Add other styles as needed */
+  }
+
+  .task-display {
+    display: flex;
+    align-items: center;
+    /* Add other styles as needed */
+  }
   #account {
-	color: green;
+	color: rgb(255, 255, 255);
+  }
+
+  .edit-icon {
+    cursor: pointer;
+    margin-right: 10px; /* Space between edit and delete icons */
   }
   
   .header {
@@ -282,16 +336,16 @@ onMounted(async () => {
   }
   
   .task-list .task-item {
-	background-color: #f9f9f9; /* Light grey background */
-	border-radius: 10px; /* Rounded corners */
-	padding: 5px; /* Padding around the content */
-	margin: 10px 0; /* Spacing between tasks */
-	display: flex;
-	align-items: center;
-	gap: 6px;
-	height: 100px; /* Fixed height for the box */
-	box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1); /* subtle shadow for depth */
-  }
+  background-color: #118ab2;
+  border-radius: 10px;
+  padding: 5px;
+  margin: 10px 0;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  height: 100px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
   
   .image-container {
 	flex-shrink: 0;
@@ -323,4 +377,18 @@ onMounted(async () => {
   .load-data-button {
 	margin-bottom: 10px; /* Example style */
 }
+
+.ok {
+  display: flex;
+  align-items: center;
+  flex-direction: column;
+  width: 600px;
+  border: solid 1px black;
+  margin-left: auto;
+  margin-right: auto;
+  border-radius: 1em;
+  padding: 2em 0 2em 0;
+  background-color: #06d69edc;
+}
+
   </style>
