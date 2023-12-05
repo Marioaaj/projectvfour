@@ -1,5 +1,3 @@
-
-
 import { supabase } from '../clients/supabase';
 
 
@@ -7,16 +5,18 @@ import { supabase } from '../clients/supabase';
 
 // Function to upload image to storage and return the path
 export async function uploadProfileImage(file, userId) {
-  const filePath = `profile-images/${userId}/${file.name}`;
+    const filePath = `profile-images/${userId}/profile-pic`;
   const { error: uploadError } = await supabase.storage
-    .from('profile-images')
-    .upload(filePath, file);
+  .from('profile-images')
+  .upload(filePath, file, {
+      upsert: true // This option ensures that the file is replaced if it already exists
+  });
 
-  if (uploadError) {
-    console.error('Error uploading file:', uploadError);
-    return null;
-  }
-  return filePath;
+if (uploadError) {
+  console.error('Error uploading file:', uploadError);
+  return null;
+}
+return filePath;
 }
 
 // Function to update user's profile image URL in the database

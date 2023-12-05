@@ -1,54 +1,69 @@
 <template>
-	<div class="ok">
-	  <div class="inputContainer">
-		<input type="email" id="email" v-model="email" placeholder="Email" class="styled-input">
-	  </div>
+  <div class="ok">
+    <div class="inputContainer">
+      <input type="email" id="email" v-model="email" placeholder="Email" class="styled-input">
+    </div>
+
+    <div class="inputContainer">
+      <input type="password" id="password" v-model="password" placeholder="Password" class="styled-input">
+    </div>
+
+    <!-- Registration Message -->
+    <div v-if="registrationMessage" :class="{'success-message': registrationSuccess, 'error-message': !registrationSuccess}">
+      {{ registrationMessage }}
+    </div>
+  </div>
   
-	  <div class="inputContainer">
-		<input type="password" id="password" v-model="password" placeholder="Password" class="styled-input">
-	  </div>
-	</div>
-	
-	<div class="buttonContainer">
-	  <button class="rounded-button" @click="login">Login</button>
-	  <button class="rounded-button" @click="logout">Logout</button>
-	  <button class="rounded-button" @click="createAccount">Register</button>
-	  <button class="rounded-button" @click="goToHome">Home</button>
-	</div>
-  </template>
+  <div class="buttonContainer">
+    <button class="rounded-button" @click="login">Login</button>
+    <button class="rounded-button" @click="logout">Logout</button>
+    <button class="rounded-button" @click="createAccount">Register</button>
+    <button class="rounded-button" @click="goToHome">Home</button>
+  </div>
+</template>
 
 <script setup>
 import { ref } from "vue";
 import { supabase } from "../clients/supabase"
 import { useRouter } from 'vue-router';
+import { loadTasks } from "@/utils/loadTasks"; // Import loadTasks
+
 
 const router = useRouter();
 
 let email = ref("");
 let password = ref("");
 let firstName = ref("");
+let registrationMessage = ref('');
+let registrationSuccess = ref(false);
+
 
 async function createAccount() {
-	const { user, error } = await supabase.auth.signUp({
-		email: email.value,
-		password: password.value,
-		options: {
-			data: {
-				first_name: firstName.value
-			}
-		}
-	})
-	if (error)
-	{
-		console.log(error);
-	}
-	else
-	{
-		console.log(user);
-	}
+  const { user, error } = await supabase.auth.signUp({
+    email: email.value,
+    password: password.value,
+    options: {
+      data: {
+        first_name: firstName.value
+      }
+    }
+  });
+
+  if (error) {
+    console.log(error);
+    registrationMessage.value = 'Registration unsuccessful, please try again.';
+    registrationSuccess.value = false;
+  } else {
+    console.log(user);
+    registrationMessage.value = 'A registration email was successfully sent to your email. Please check your email.';
+    registrationSuccess.value = true;
+  }
 }
 
+
 let session = ref(null);
+
+const tasks = ref([]);
 
 async function login() {
   console.log("run");
@@ -58,13 +73,25 @@ async function login() {
   });
 
   if (error) {
-    console.log(error);
+    console.error(error);
   } else {
     console.log(data);
     session.value = data; // Store the session data
-    router.push('/secret'); // Navigate to the secret page
+
+    // Navigate to the secret page first
+    await router.push('/secret'); // If /secret is a path
+    // If /secret is a named route, use: await router.push({ name: 'secret' });
+
+    try {
+      // Then load tasks
+      tasks.value = await loadTasks();
+      console.log('Loaded tasks:', tasks.value);
+    } catch (error) {
+      console.error('Error loading tasks:', error);
+    }
   }
 }
+
 async function seeUser() {
 	const localUser = await supabase.auth.getSession();
 	console.log(localUser.data.session) //, had to add this to troubleshoot, because couldnt upload stuff may delete later
@@ -157,4 +184,16 @@ body {
   display: flex; /* Use flex to center align the input fields */
   justify-content: center; /* Center align the input fields horizontally */
 }
+.success-message {
+    color: black; /* Or any color you prefer for success messages */
+    text-align: center;
+    margin-top: 1em;
+  }
+
+  .error-message {
+    color: red; /* Or any color you prefer for error messages */
+    text-align: center;
+    margin-top: 1em;
+  }
+
 </style>

@@ -5,6 +5,7 @@ import { logout } from "@/utils/logout";
 import { onMounted } from 'vue';
 import { nanoid } from 'nanoid';
 import { useRouter } from 'vue-router';
+import { uploadProfileImage, updateProfileImage } from '@/utils/profileImage';
 
 const baseURL = 'https://oerpddeqepyvfzuecggs.supabase.co/storage/v1/object/public/echoimages/';
 
@@ -12,6 +13,22 @@ const baseURL = 'https://oerpddeqepyvfzuecggs.supabase.co/storage/v1/object/publ
 const router = useRouter();
 
 
+
+const handleProfileImageChange = async (event) => {
+    const file = event.target.files[0];
+    if (!file) return;
+
+    const userId = account.value?.data?.session?.user?.id;
+    if (!userId) {
+        console.error('User not logged in');
+        return;
+    }
+
+    const filePath = await uploadProfileImage(file, userId);
+    if (filePath) {
+        await updateProfileImage(userId, filePath);
+    }
+}
 
 const editTask = (task) => {
   router.push({ name: 'editTask', params: { taskId: task.id } });
@@ -119,6 +136,7 @@ const addTask = async () => {
   } catch (e) {
     console.error('Error during task addition:', e);
   }
+  await loadTasks();
 };
 
 
@@ -225,27 +243,28 @@ onMounted(async () => {
 	<div class="ok">
 	  <div class="header">
 		<h1>📝 Log an Odyssey 📝</h1>
+		<!-- <input type="file" @change="handleProfileImageChange" accept="image/*" /> -->
 		<p id="account">Account: {{ account.data.session.user.email }}</p>
 		<button @click="handleLogout">Sign Out</button>
 		<button @click="manualDataLoad" class="load-data-button">Reveal Memories</button>
 	  </div>
-	  <div class="task-form-container">
-		<label for="file-input" class="file-input-label">
-		  <img src="../cam.svg" alt="Choose file" />
-		</label>
-		<input
-		  type="file"
-		  id="file-input"
-		  @change="handleFileSelect"
-		  accept="image/*"
-		  style="display: none;"
-		/>
-		<input
-		  type="text"
-		  placeholder="Write your Odyssey"
-		  v-model="newTask"
-		  class="task-input"
-		/>
+    <div class="task-form-container">
+    <label for="file-input" class="file-input-label">
+      <img src="../cam.svg" alt="Choose file" />
+    </label>
+    <input
+      type="file"
+      id="file-input"
+      @change="handleFileSelect"
+      accept="image/*"
+      style="display: none;"
+    />
+    <input
+      type="text"
+      placeholder="Write your Odyssey"
+      v-model="newTask"
+      class="task-input"
+    />
 		<button @click="addTask" class="add-button">Add</button>
 	  </div>
 	  <div v-if="selectedImage" class="image-preview">
@@ -330,12 +349,7 @@ onMounted(async () => {
 	max-height: 100px;
   }
   
-  .task-list {
-	padding: 0;
-	list-style: none;
-  }
-  
-  .task-list .task-item {
+  .task-item {
   background-color: #118ab2;
   border-radius: 10px;
   padding: 5px;
